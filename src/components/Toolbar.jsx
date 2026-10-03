@@ -14,7 +14,7 @@ function Badge({ children, tone = 'neutral' }) {
   );
 }
 
-export default function Toolbar({ result, counts, filters, onToggleFilter, onCopy, copied, onReset }) {
+export default function Toolbar({ result, counts, filters, onToggleFilter, onOpenPrompt, onReset }) {
   const { audit, model, latencyMs, source, repaired, viewport } = result;
   const isLive = source === 'live';
 
@@ -60,10 +60,11 @@ export default function Toolbar({ result, counts, filters, onToggleFilter, onCop
       <div className="ml-auto flex items-center gap-2">
         <button
           type="button"
-          onClick={onCopy}
+          onClick={onOpenPrompt}
+          aria-haspopup="dialog"
           className="rounded-md bg-ink-700/70 px-3 py-1.5 text-xs font-medium text-ink-200 ring-1 ring-inset ring-ink-600 transition hover:bg-ink-600"
         >
-          {copied ? 'Copied' : 'Copy fixes as agent prompt'}
+          Agent prompt…
         </button>
         <button
           type="button"

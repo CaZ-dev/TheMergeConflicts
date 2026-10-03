@@ -3,9 +3,10 @@ import DropZone from './components/DropZone.jsx';
 import Overlay from './components/Overlay.jsx';
 import IssueList from './components/IssueList.jsx';
 import Toolbar from './components/Toolbar.jsx';
+import PromptEditor from './components/PromptEditor.jsx';
 import { SEVERITY_ORDER } from './components/severity.js';
 import { useAudit } from './lib/useAudit.js';
-import { DEVICE_LABELS } from '../shared/viewport.js';
+import { buildAgentPrompt } from './lib/agentPrompt.js';
 
 const ALL = SEVERITY_ORDER;
 
@@ -15,7 +16,8 @@ export default function App() {
   const [viewportChoice, setViewportChoice] = useState('auto');
   const [activeId, setActiveId] = useState(null);
   const [filters, setFilters] = useState(ALL);
-  const [copied, setCopied] = useState(false);
+  const [promptOpen, setPromptOpen] = useState(false);
+  const [promptDraft, setPromptDraft] = useState(null);
 
   // ?demo=1 opens straight into the cached sample, for a zero-risk demo start.
   useEffect(() => {
@@ -38,26 +40,19 @@ export default function App() {
     setFilters((f) => (f.includes(sev) ? f.filter((s) => s !== sev) : [...f, sev]));
   }, []);
 
-  const copyPrompt = useCallback(async () => {
-    const lines = visible.map(
-      (i) => `${i.id}. [${i.severity}] ${i.title}\n   Problem: ${i.observation}\n   Fix: ${i.fix}`,
-    );
-    const vp = result?.viewport;
-    const where = vp ? `a ${DEVICE_LABELS[vp.device].toLowerCase()} screenshot (about ${vp.cssWidth} CSS px wide)` : 'a screenshot';
-    const text = `Fix these UI and accessibility issues found in ${where} of this interface:\n\n${lines.join('\n\n')}`;
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1600);
-    } catch {
-      setCopied(false);
-    }
-  }, [visible, result]);
+  const generatedPrompt = useMemo(
+    () => buildAgentPrompt(visible, result?.viewport),
+    [visible, result],
+  );
+
+  const closePrompt = useCallback(() => setPromptOpen(false), []);
 
   const startOver = useCallback(() => {
     reset();
     setActiveId(null);
     setFilters(ALL);
+    setPromptOpen(false);
+    setPromptDraft(null);
   }, [reset]);
 
   const busy = status === 'preparing' || status === 'analyzing';
@@ -111,8 +106,7 @@ export default function App() {
               counts={counts}
               filters={filters}
               onToggleFilter={toggleFilter}
-              onCopy={copyPrompt}
-              copied={copied}
+              onOpenPrompt={() => setPromptOpen(true)}
               onReset={startOver}
             />
 
@@ -133,6 +127,14 @@ export default function App() {
                 <IssueList issues={visible} activeId={activeId} onActivate={setActiveId} />
               </div>
             </div>
+
+            <PromptEditor
+              open={promptOpen}
+              onClose={closePrompt}
+              generated={generatedPrompt}
+              draft={promptDraft}
+              onDraftChange={setPromptDraft}
+            />
           </div>
         )}
       </main>
