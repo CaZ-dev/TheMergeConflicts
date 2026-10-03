@@ -1,0 +1,76 @@
+{
+  "summary": "A clean-looking dashboard whose visual emphasis actively works against the user: the destructive action is the loudest control on the page and critical status is carried by colour alone.",
+  "score": 42,
+  "issues": [
+    {
+      "id": 1,
+      "title": "Destructive action outranks primary",
+      "category": "hierarchy",
+      "severity": "critical",
+      "wcag": null,
+      "observation": "In the Add alert panel, Delete all is a filled red button while Save is a pale ghost button with grey text. The most dangerous action is the most visually prominent, and the action the user actually came to perform reads as secondary.",
+      "fix": "Make Save the filled primary button and demote Delete all to a quiet text button placed away from it.",
+      "box_2d": [438, 711, 491, 952]
+    },
+    {
+      "id": 2,
+      "title": "Sidebar navigation fails contrast",
+      "category": "contrast",
+      "severity": "critical",
+      "wcag": "1.4.3",
+      "observation": "Every inactive nav item (Deployments, Metrics, Logs, Billing, Settings) is rendered in a very light grey on an almost-white sidebar. The contrast is far below the 4.5:1 required for body text, and the labels nearly vanish.",
+      "fix": "Darken inactive navigation labels to at least #5b6170 so they clear 4.5:1 against the sidebar background.",
+      "box_2d": [131, 12, 353, 156]
+    },
+    {
+      "id": 3,
+      "title": "Deploy status uses colour alone",
+      "category": "labeling",
+      "severity": "serious",
+      "wcag": "1.4.1",
+      "observation": "In the deployments table, Failed and Passed are distinguished only by red and green text. A red-green colour blind user sees four rows of near-identical text and cannot tell the failed deploy from the passing ones.",
+      "fix": "Pair each status with an icon or a filled badge shape so the state is readable without relying on hue.",
+      "box_2d": [698, 478, 878, 547]
+    },
+    {
+      "id": 4,
+      "title": "Unlabeled icon buttons, too small",
+      "category": "tap-target",
+      "severity": "serious",
+      "wcag": "2.5.8",
+      "observation": "Three icon-only buttons sit in the top right at roughly 20 by 20 pixels with only 6 pixels between them. They are below the 24 pixel minimum target size, crowded enough to mis-tap, and none carries a visible label explaining what it does.",
+      "fix": "Grow each button to at least 24 by 24 pixels, increase the gap to 8 pixels, and add accessible names plus tooltips.",
+      "box_2d": [20, 844, 51, 908]
+    },
+    {
+      "id": 5,
+      "title": "Placeholders used as field labels",
+      "category": "labeling",
+      "severity": "serious",
+      "wcag": "3.3.2",
+      "observation": "The Threshold and Email inputs show their only label as grey placeholder text inside the field. As soon as the user types, the label disappears, so nobody can check what they filled in before saving.",
+      "fix": "Add a persistent visible label above each input and keep the placeholder for example values only.",
+      "box_2d": [302, 716, 349, 947]
+    },
+    {
+      "id": 6,
+      "title": "Empty state is a dead end",
+      "category": "state",
+      "severity": "serious",
+      "wcag": null,
+      "observation": "The Traffic panel occupies a large area and says only No data in faint grey. It gives no reason for the emptiness, no indication of whether this is loading or broken, and no action the user can take.",
+      "fix": "Explain why the panel is empty and offer a next step, for example connecting a source or widening the time range.",
+      "box_2d": [378, 336, 420, 547]
+    },
+    {
+      "id": 7,
+      "title": "Regression styled as neutral",
+      "category": "hierarchy",
+      "severity": "minor",
+      "wcag": null,
+      "observation": "The p95 latency card reports +31% in the same muted grey used for the +12% requests increase. A sharp latency regression and a healthy traffic rise are given identical visual weight, so the bad number does not register.",
+      "fix": "Colour and direction-code the deltas so a worsening metric reads as a warning rather than a neutral stat.",
+      "box_2d": [187, 706, 213, 938]
+    }
+  ]
+}

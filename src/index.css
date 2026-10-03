@@ -1,0 +1,17 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ink-950: #0b0d11;
+  --color-ink-900: #11141a;
+  --color-ink-800: #171b23;
+  --color-ink-700: #222733;
+  --color-ink-600: #333a49;
+  --color-ink-400: #7f899c;
+  --color-ink-200: #c3cad6;
+}
+
+html, body, #root { height: 100%; }
+body { background: var(--color-ink-950); color: var(--color-ink-200); }
+
+@keyframes sweep { 0% { transform: translateY(-100%); } 100% { transform: translateY(1000%); } }
+.animate-sweep { animation: sweep 1.6s linear infinite; }
