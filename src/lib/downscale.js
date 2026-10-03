@@ -35,6 +35,10 @@ export function prepareImage(file) {
         previewUrl: dataUrl,
         width: outW,
         height: outH,
+        // The original capture size, which is what the viewport is inferred
+        // from: downscaling would hide whether this was a 1x or 3x capture.
+        naturalWidth: w,
+        naturalHeight: h,
         image: { mimeType: 'image/jpeg', data: dataUrl.split(',')[1] },
       });
     };

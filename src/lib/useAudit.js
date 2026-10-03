@@ -2,8 +2,10 @@ import { useCallback, useState } from 'react';
 import { prepareImage } from './downscale.js';
 import sampleAuditRaw from '../fixtures/sample-audit.json';
 import { normalizeAudit } from '../../shared/normalize.js';
+import { describeViewport } from '../../shared/viewport.js';
 
 const SAMPLE_IMAGE = '/sample-screenshot.png';
+const SAMPLE_SIZE = { width: 1280, height: 900 };
 
 /**
  * Audit lifecycle: idle -> preparing -> analyzing -> done | error.
@@ -23,7 +25,7 @@ export function useAudit() {
     setError(null);
   }, []);
 
-  const audit = useCallback(async (file, notes) => {
+  const audit = useCallback(async (file, notes, viewportChoice = 'auto') => {
     setError(null);
     setResult(null);
     setStatus('preparing');
@@ -40,11 +42,17 @@ export function useAudit() {
     setPreview(prepared.previewUrl);
     setStatus('analyzing');
 
+    const viewport = describeViewport({
+      width: prepared.naturalWidth,
+      height: prepared.naturalHeight,
+      choice: viewportChoice,
+    });
+
     try {
       const res = await fetch('/api/audit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ image: prepared.image, notes }),
+        body: JSON.stringify({ image: prepared.image, notes, viewport }),
       });
 
       const payload = await res.json().catch(() => null);
@@ -75,6 +83,7 @@ export function useAudit() {
       audit: normalizeAudit(sampleAuditRaw),
       model: 'gemma-4-26b-a4b-it',
       latencyMs: null,
+      viewport: describeViewport(SAMPLE_SIZE),
       source: 'sample',
     });
     setStatus('done');

@@ -4,7 +4,7 @@
 
 const SEVERITIES = new Set(['critical', 'serious', 'minor']);
 const CATEGORIES = new Set([
-  'contrast', 'tap-target', 'labeling', 'hierarchy', 'copy', 'consistency', 'state',
+  'contrast', 'tap-target', 'labeling', 'hierarchy', 'copy', 'consistency', 'state', 'layout',
 ]);
 
 const clamp1000 = (n) => Math.min(1000, Math.max(0, Math.round(n)));

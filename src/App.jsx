@@ -5,12 +5,14 @@ import IssueList from './components/IssueList.jsx';
 import Toolbar from './components/Toolbar.jsx';
 import { SEVERITY_ORDER } from './components/severity.js';
 import { useAudit } from './lib/useAudit.js';
+import { DEVICE_LABELS } from '../shared/viewport.js';
 
 const ALL = SEVERITY_ORDER;
 
 export default function App() {
   const { status, preview, result, error, audit, loadSample, reset } = useAudit();
   const [notes, setNotes] = useState('');
+  const [viewportChoice, setViewportChoice] = useState('auto');
   const [activeId, setActiveId] = useState(null);
   const [filters, setFilters] = useState(ALL);
   const [copied, setCopied] = useState(false);
@@ -40,7 +42,9 @@ export default function App() {
     const lines = visible.map(
       (i) => `${i.id}. [${i.severity}] ${i.title}\n   Problem: ${i.observation}\n   Fix: ${i.fix}`,
     );
-    const text = `Fix these UI and accessibility issues found in a screenshot of this interface:\n\n${lines.join('\n\n')}`;
+    const vp = result?.viewport;
+    const where = vp ? `a ${DEVICE_LABELS[vp.device].toLowerCase()} screenshot (about ${vp.cssWidth} CSS px wide)` : 'a screenshot';
+    const text = `Fix these UI and accessibility issues found in ${where} of this interface:\n\n${lines.join('\n\n')}`;
     try {
       await navigator.clipboard.writeText(text);
       setCopied(true);
@@ -48,7 +52,7 @@ export default function App() {
     } catch {
       setCopied(false);
     }
-  }, [visible]);
+  }, [visible, result]);
 
   const startOver = useCallback(() => {
     reset();
@@ -82,10 +86,12 @@ export default function App() {
             ) : (
               <>
                 <DropZone
-                  onFile={(f) => audit(f, notes)}
+                  onFile={(f) => audit(f, notes, viewportChoice)}
                   onSample={loadSample}
                   notes={notes}
                   onNotesChange={setNotes}
+                  viewportChoice={viewportChoice}
+                  onViewportChange={setViewportChoice}
                   busy={busy}
                 />
                 {error && (

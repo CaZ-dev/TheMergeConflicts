@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { DEVICES, DEVICE_LABELS } from '../../shared/viewport.js';
 
-export default function DropZone({ onFile, onSample, notes, onNotesChange, busy }) {
+const VIEWPORT_OPTIONS = [['auto', 'Auto-detect'], ...DEVICES.map((d) => [d, DEVICE_LABELS[d]])];
+
+export default function DropZone({ onFile, onSample, notes, onNotesChange, viewportChoice, onViewportChange, busy }) {
   const [dragging, setDragging] = useState(false);
   const inputRef = useRef(null);
 
@@ -50,6 +53,24 @@ export default function DropZone({ onFile, onSample, notes, onNotesChange, busy 
           onChange={(e) => { const f = e.target.files?.[0]; if (f) onFile(f); e.target.value = ''; }}
         />
       </div>
+
+      <fieldset className="mt-4">
+        <legend className="text-xs font-medium text-ink-400">Viewport</legend>
+        <div className="mt-1.5 inline-flex rounded-lg border border-ink-700 bg-ink-900 p-0.5">
+          {VIEWPORT_OPTIONS.map(([value, label]) => (
+            <button
+              key={value}
+              type="button"
+              onClick={() => onViewportChange(value)}
+              aria-pressed={viewportChoice === value}
+              className={`rounded-md px-3 py-1.5 text-xs font-medium transition
+                ${viewportChoice === value ? 'bg-ink-700 text-white' : 'text-ink-400 hover:text-ink-200'}`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      </fieldset>
 
       <label className="mt-4 block">
         <span className="text-xs font-medium text-ink-400">What should it focus on? (optional)</span>

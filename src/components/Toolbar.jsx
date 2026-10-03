@@ -1,4 +1,5 @@
 import { SEVERITY_META, SEVERITY_ORDER } from './severity.js';
+import { DEVICE_LABELS } from '../../shared/viewport.js';
 
 function Badge({ children, tone = 'neutral' }) {
   const tones = {
@@ -14,7 +15,7 @@ function Badge({ children, tone = 'neutral' }) {
 }
 
 export default function Toolbar({ result, counts, filters, onToggleFilter, onCopy, copied, onReset }) {
-  const { audit, model, latencyMs, source, repaired } = result;
+  const { audit, model, latencyMs, source, repaired, viewport } = result;
   const isLive = source === 'live';
 
   return (
@@ -24,6 +25,13 @@ export default function Toolbar({ result, counts, filters, onToggleFilter, onCop
         {isLive ? `Live ${model}` : 'Cached sample response'}
       </Badge>
 
+      {viewport && (
+        <Badge>
+          <span title={`${viewport.width}x${viewport.height} at ~${viewport.dpr}x`}>
+            {DEVICE_LABELS[viewport.device]} · ~{viewport.cssWidth}px{viewport.source === 'auto' ? ' (auto)' : ''}
+          </span>
+        </Badge>
+      )}
       {latencyMs != null && <Badge>{(latencyMs / 1000).toFixed(1)}s</Badge>}
       {audit.score != null && <Badge>Score {audit.score}/100</Badge>}
       {repaired && <Badge tone="sample">JSON repaired</Badge>}

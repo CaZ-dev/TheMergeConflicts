@@ -53,6 +53,7 @@ function gemmaApiPlugin(env) {
           const result = await runAudit({
             image: body.image,
             notes: body.notes,
+            viewport: body.viewport,
             apiKey: env.GEMINI_API_KEY,
             model: env.GEMMA_MODEL || DEFAULT_MODEL,
           });

@@ -1,5 +1,6 @@
 import { SYSTEM_INSTRUCTION, buildUserPrompt, REPAIR_PROMPT } from './prompt.js';
 import { normalizeAudit } from '../shared/normalize.js';
+import { sanitizeViewport } from '../shared/viewport.js';
 
 const API_BASE = 'https://generativelanguage.googleapis.com/v1beta/models';
 export const DEFAULT_MODEL = 'gemma-4-26b-a4b-it';
@@ -73,9 +74,10 @@ async function callGemma({ apiKey, model, parts, allowSystem }) {
 
 /**
  * Run one audit. `image` is { mimeType, data } where data is bare base64.
- * Returns { audit, raw, model, latencyMs, repaired }.
+ * `viewport` is the client's { width, height, device, source } descriptor.
+ * Returns { audit, model, latencyMs, repaired, viewport }.
  */
-export async function runAudit({ image, notes, apiKey, model = DEFAULT_MODEL }) {
+export async function runAudit({ image, notes, viewport: viewportIn, apiKey, model = DEFAULT_MODEL }) {
   if (!apiKey) {
     throw new AuditError(
       'No GEMINI_API_KEY configured. Copy .env.example to .env and add a key from aistudio.google.com, then restart the dev server. The "Load sample" button works without a key.',
@@ -86,9 +88,12 @@ export async function runAudit({ image, notes, apiKey, model = DEFAULT_MODEL }) 
     throw new AuditError('No image supplied.', 400);
   }
 
+  const viewport = sanitizeViewport(viewportIn);
+  const userPrompt = buildUserPrompt(notes, viewport);
+
   const baseParts = [
     { inline_data: { mime_type: image.mimeType, data: image.data } },
-    { text: buildUserPrompt(notes) },
+    { text: userPrompt },
   ];
 
   const started = Date.now();
@@ -104,7 +109,7 @@ export async function runAudit({ image, notes, apiKey, model = DEFAULT_MODEL }) 
       model,
       parts: [
         { inline_data: { mime_type: image.mimeType, data: image.data } },
-        { text: `${SYSTEM_INSTRUCTION}\n\n${buildUserPrompt(notes)}` },
+        { text: `${SYSTEM_INSTRUCTION}\n\n${userPrompt}` },
       ],
       allowSystem: false,
     });
@@ -120,7 +125,7 @@ export async function runAudit({ image, notes, apiKey, model = DEFAULT_MODEL }) 
     const retryParts = [
       ...(allowSystem
         ? baseParts
-        : [baseParts[0], { text: `${SYSTEM_INSTRUCTION}\n\n${buildUserPrompt(notes)}` }]),
+        : [baseParts[0], { text: `${SYSTEM_INSTRUCTION}\n\n${userPrompt}` }]),
     ];
     const retryText = await callGemma({
       apiKey,
@@ -144,5 +149,6 @@ export async function runAudit({ image, notes, apiKey, model = DEFAULT_MODEL }) 
     model,
     latencyMs: Date.now() - started,
     repaired,
+    viewport,
   };
 }

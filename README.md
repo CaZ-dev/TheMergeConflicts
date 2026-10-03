@@ -54,6 +54,7 @@ screenshot -> downscale to 1536px -> Gemma 4 (inline base64) -> JSON audit -> ov
 | `server/prompt.js` | System instruction and the JSON contract. Prompt tuning is a one-file edit. |
 | `server/audit.js` | Gemini API call, tolerant JSON extraction, one repair retry. |
 | `shared/normalize.js` | Validates and clamps every box. Used by both the live and cached paths. |
+| `shared/viewport.js` | Infers mobile, tablet, or desktop and an approximate CSS width from the original capture size. The prompt applies severity rules for that device. |
 | `vite.config.js` | Serves `POST /api/audit` from the dev server so there is only one process. |
 | `src/components/Overlay.jsx` | The boxes. |
 
